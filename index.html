@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SONIQ — Guess The Song</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg: #100d1c;
+  --panel: #201a34;
+  --panel2: #2d2345;
+  --yellow: #ffe36e;
+  --pink: #ff6fbd;
+  --cyan: #6ee7f5;
+  --green: #8df0a5;
+  --text: #fff8df;
+  --muted: #b7aacd;
+  --border: #51436e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 0%, #34204e, transparent 35%),
+    var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.container {
+  width: min(1000px, 92%);
+  margin: auto;
+  padding: 24px 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(18px, 4vw, 30px);
+  color: var(--yellow);
+  text-shadow: 3px 3px #914d9e;
+}
+
+.logo span {
+  color: var(--pink);
+}
+
+.badge {
+  color: var(--pink);
+  border: 1px solid var(--pink);
+  padding: 8px;
+  font-size: 10px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.nav-btn {
+  padding: 10px 13px;
+  background: var(--panel);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.nav-btn.active,
+.nav-btn:hover {
+  background: var(--yellow);
+  color: var(--bg);
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.panel {
+  background: linear-gradient(145deg, var(--panel), #191426);
+  border: 1px solid var(--border);
+  box-shadow: 5px 5px 0 #080611;
+  padding: 25px;
+  margin-bottom: 18px;
+}
+
+.hero {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(22px, 5vw, 40px);
+  color: var(--yellow);
+  line-height: 1.5;
+  text-shadow: 4px 4px #914d9e;
+}
+
+h2 {
+  font-family: 'Press Start 2P', monospace;
+  color: var(--cyan);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+p {
+  line-height: 1.7;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.btn {
+  padding: 13px 16px;
+  background: var(--yellow);
+  color: #20162d;
+  border: 2px solid #fff2a6;
+  font-weight: bold;
+  box-shadow: 4px 4px #8d5795;
+  transition: .15s;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px #8d5795;
+}
+
+.btn.secondary {
+  background: var(--panel2);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: 3px 3px #090711;
+}
+
+.btn.danger {
+  background: #ff829e;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat {
+  background: var(--panel2);
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.stat strong {
+  display: block;
+  color: var(--yellow);
+  font-size: 23px;
+  margin-top: 8px;
+}
+
+.game-top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  color: var(--cyan);
+}
+
+.progress {
+  height: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+.progress div {
+  height: 100%;
+  width: 0%;
+  background: var(--pink);
+  transition: .3s;
+}
+
+.disc {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  margin: 22px auto;
+  background: repeating-radial-gradient(
+    circle, #171323 0 8px, #39304e 9px 10px
+  );
+  border: 7px solid #76618f;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 25px #a45bc766;
+  animation: spin 5s linear infinite;
+}
+
+.disc.paused {
+  animation-play-state: paused;
+}
+
+.disc span {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--pink);
+  display: grid;
+  place-items: center;
+  color: #24172d;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.timer {
+  font-size: 38px;
+  color: var(--yellow);
+  font-weight: bold;
+  margin: 12px;
+}
+
+.answer-row {
+  display: flex;
+  gap: 8px;
+  max-width: 600px;
+  margin: 18px auto;
+}
+
+input, select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 13px;
+  width: 100%;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--cyan);
+}
+
+.feedback {
+  min-height: 30px;
+  color: var(--green);
+  font-weight: bold;
+}
+
+.center {
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.song-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 14px;
+  margin: 8px 0;
+}
+
+.song-row small {
+  color: var(--muted);
+}
+
+label {
+  display: block;
+  color: var(--cyan);
+  margin: 15px 0 7px;
+  font-size: 12px;
+}
+
+.file-box {
+  border: 1px dashed var(--pink);
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.empty {
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  text-align: center;
+  padding: 22px;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media(max-width:600px) {
+  .container {
+    width: 94%;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .answer-row,
+  .search-row {
+    flex-direction: column;
+  }
+
+  .disc {
+    width: 135px;
+    height: 135px;
+  }
+
+  h2 {
+    font-size: 13px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">SONIQ<span>_</span></div>
+  <div class="badge">★ RETRO ARCADE ★</div>
+</header>
+
+<nav>
+  <button class="nav-btn active" data-page="home">HOME</button>
+  <button class="nav-btn" data-page="game">PLAY</button>
+  <button class="nav-btn" data-page="finder">MUSIC FINDER</button>
+  <button class="nav-btn" data-page="library">SONG LIBRARY</button>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="view active">
+
+  <div class="panel hero">
+    <p style="color:var(--pink)">/// MUSIC CHALLENGE ///</p>
+
+    <h1>GUESS THE<br>SONG!</h1>
+
+    <p class="muted">
+      Seberapa cepat kamu mengenali lagu?<br>
+      Dengarkan, tebak, dan kumpulkan poin!
+    </p>
+
+    <button class="btn" onclick="startGame()">▶ START GAME</button>
+
+    <p class="small muted" style="margin-top:20px">
+      5 SONGS · RANDOM TRACKS · SPEED BONUS
+    </p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <small class="muted">HIGH SCORE</small>
+      <strong id="highScore">0</strong>
+    </div>
+
+    <div class="stat">
+      <small class="muted">SONGS</small>
+      <strong id="songCount">0</strong>
+    </div>
+
+    <div class="stat">
+      <small class="muted">ROUNDS</small>
+      <strong>5</strong>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>HOW TO PLAY</h2>
+    <p class="muted">
+      01. Tambahkan lagu ke database.<br>
+      02. Tekan Start Game.<br>
+      03. Dengarkan lagu yang diputar.<br>
+      04. Tebak judulnya secepat mungkin.<br>
+      05. Raih skor tertinggi!
+    </p>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game" class="view">
+
+  <div class="panel center">
+
+    <div class="game-top">
+      <span id="roundLabel">ROUND 00 / 05</span>
+      <span>SCORE: <b id="score">0</b></span>
+    </div>
+
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+
+    <div class="disc paused" id="disc">
+      <span>SONIQ</span>
+    </div>
+
+    <p class="muted" id="gameStatus">PRESS START TO BEGIN</p>
+
+    <div class="timer" id="timer">00:00.0</div>
+
+    <audio id="audioPlayer"></audio>
+
+    <div class="answer-row">
+      <input id="answerInput" placeholder="Ketik judul lagu..." autocomplete="off">
+      <button class="btn" id="submitBtn" onclick="submitAnswer()">GUESS!</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+      <button class="btn secondary" onclick="replaySong()">↻ REPLAY</button>
+      <button class="btn secondary" onclick="skipSong()">SKIP</button>
+    </div>
+
+    <p class="muted small" style="margin-top:20px">
+      ≤3s: 1000 pts · ≤6s: 800 pts · ≤10s: 600 pts<br>
+      ≤15s: 400 pts · ≤20s: 200 pts · &gt;20s: 100 pts
+    </p>
+
+  </div>
+
+  <div class="panel center hidden" id="resultPanel">
+    <h2>GAME OVER!</h2>
+    <h1 id="finalScore">0</h1>
+    <p class="muted" id="resultMessage"></p>
+    <button class="btn" onclick="startGame()">PLAY AGAIN</button>
+    <button class="btn secondary" onclick="goPage('home')">HOME</button>
+  </div>
+</section>
+
+<!-- MUSIC FINDER -->
+<section id="finder" class="view">
+
+  <div class="panel">
+    <h2>♫ MUSIC FINDER</h2>
+
+    <p class="muted">
+      Cari lagu berdasarkan judul atau nama penyanyi
+      di database SONIQ.
+    </p>
+
+    <div class="search-row">
+      <input id="searchInput" placeholder="Cari judul atau penyanyi...">
+      <button class="btn" onclick="searchSongs()">SEARCH</button>
+    </div>
+
+    <div id="searchResults"></div>
+  </div>
+</section>
+
+<!-- LIBRARY -->
+<section id="library" class="view">
+
+  <div class="panel">
+    <h2>♪ SONG LIBRARY</h2>
+
+    <p class="muted">
+      Tambahkan lagu milikmu atau audio yang diizinkan
+      untuk digunakan.
+    </p>
+
+    <label>JUDUL LAGU</label>
+    <input id="songTitle" placeholder="Judul lagu">
+
+    <label>NAMA PENYANYI</label>
+    <input id="songArtist" placeholder="Nama penyanyi">
+
+    <label>GENRE</label>
+    <select id="songGenre">
+      <option>Pop</option>
+      <option>Rock</option>
+      <option>Indie</option>
+      <option>Pop Punk</option>
+      <option>Metal</option>
+      <option>Hip-hop</option>
+      <option>Electronic</option>
+      <option>Anime / Game</option>
+      <option>Soundtrack</option>
+      <option>Other</option>
+    </select>
+
+    <label>FILE AUDIO</label>
+    <div class="file-box">
+      <input type="file" id="songFile" accept="audio/*">
+      <p class="muted small">Pilih file audio dari perangkatmu.</p>
+    </div>
+
+    <button class="btn" onclick="addSong()">＋ ADD SONG</button>
+
+    <p class="feedback" id="libraryFeedback"></p>
+
+    <hr style="border-color:var(--border);margin:25px 0">
+
+    <h2>YOUR SONGS</h2>
+    <div id="libraryList"></div>
+  </div>
+</section>
+
+<footer>
+  SONIQ ARCADE v1.0<br>
+  MADE FOR MUSIC LOVERS
+</footer>
+
+</div>
+
+<script>
+/* =========================
+   SONIQ DATABASE
+========================= */
+
+const DB_NAME = "SONIQ_DATABASE";
+const STORE = "songs";
+
+let songs = [];
+let gameSongs = [];
+let round = 0;
+let score = 0;
+let startTime = 0;
+let elapsed = 0;
+let timerInterval = null;
+let playing = false;
+let answered = false;
+
+const $ = id => document.getElementById(id);
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(STORE, { keyPath: "id" });
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function getSongs() {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(STORE).objectStore(STORE).getAll();
+
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveSong(song) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(STORE, "readwrite")
+      .objectStore(STORE)
+      .put(song);
+
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function deleteSong(id) {
+  const db = await openDB();
+
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(STORE, "readwrite")
+      .objectStore(STORE)
+      .delete(id);
+
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function goPage(page) {
+  document.querySelectorAll(".view").forEach(v => {
+    v.classList.remove("active");
+  });
+
+  document.querySelectorAll(".nav-btn").forEach(b => {
+    b.classList.remove("active");
+  });
+
+  $(page).classList.add("active");
+
+  document.querySelector(`[data-page="${page}"]`)
+    ?.classList.add("active");
+
+  if (page === "finder") searchSongs();
+  if (page === "library") renderLibrary();
+}
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => goPage(btn.dataset.page));
+});
+
+/* =========================
+   HOME
+========================= */
+
+function updateHome() {
+  $("highScore").textContent =
+    localStorage.getItem("SONIQ_HIGH_SCORE") || 0;
+
+  $("songCount").textContent = songs.length;
+}
+
+/* =========================
+   SONG LIBRARY
+========================= */
+
+async function addSong() {
+  const title = $("songTitle").value.trim();
+  const artist = $("songArtist").value.trim();
+  const genre = $("songGenre").value;
+  const file = $("songFile").files[0];
+
+  if (!title || !artist || !file) {
+    $("libraryFeedback").textContent =
+      "Lengkapi judul, penyanyi, dan file audio.";
+    return;
+  }
+
+  if (!file.type.startsWith("audio/")) {
+    $("libraryFeedback").textContent = "File harus berupa audio.";
+    return;
+  }
+
+  try {
+    await saveSong({
+      id: crypto.randomUUID(),
+      title,
+      artist,
+      genre,
+      audio: file,
+      date: Date.now()
+    });
+
+    $("songTitle").value = "";
+    $("songArtist").value = "";
+    $("songFile").value = "";
+
+    $("libraryFeedback").textContent = "SONG ADDED SUCCESSFULLY!";
+
+    await refreshSongs();
+  } catch (error) {
+    $("libraryFeedback").textContent = "Gagal menyimpan lagu.";
+    console.error(error);
+  }
+}
+
+async function refreshSongs() {
+  songs = await getSongs();
+
+  songs.sort((a, b) => a.title.localeCompare(b.title));
+
+  updateHome();
+  renderLibrary();
+}
+
+function renderLibrary() {
+  const container = $("libraryList");
+
+  if (!songs.length) {
+    container.innerHTML =
+      '<div class="empty">Belum ada lagu. Tambahkan lagu pertama!</div>';
+    return;
+  }
+
+  container.innerHTML = songs.map(song => `
+    <div class="song-row">
+      <div>
+        <b>${escapeHTML(song.title)}</b><br>
+        <small>${escapeHTML(song.artist)} · ${escapeHTML(song.genre)}</small>
+      </div>
+
+      <button class="btn danger"
+        onclick="removeSong('${song.id}')">DEL</button>
+    </div>
+  `).join("");
+}
+
+async function removeSong(id) {
+  if (!confirm("Hapus lagu ini dari database?")) return;
+
+  await deleteSong(id);
+  await refreshSongs();
+}
+
+function escapeHTML(text) {
+  return String(text).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+/* =========================
+   MUSIC FINDER
+========================= */
+
+function searchSongs() {
+  const query = ($("searchInput")?.value || "")
+    .trim()
+    .toLowerCase();
+
+  const results = songs.filter(song =>
+    (song.title + " " + song.artist + " " + song.genre)
+      .toLowerCase()
+      .includes(query)
+  );
+
+  if (!results.length) {
+    $("searchResults").innerHTML =
+      '<div class="empty">Lagu tidak ditemukan.</div>';
+    return;
+  }
+
+  $("searchResults").innerHTML = results.map(song => `
+    <div class="song-row">
+      <div>
+        <b>${escapeHTML(song.title)}</b><br>
+        <small>${escapeHTML(song.artist)} · ${escapeHTML(song.genre)}</small>
+      </div>
+
+      <button class="btn secondary"
+        onclick="previewSong('${song.id}')">▶ PLAY</button>
+    </div>
+  `).join("");
+}
+
+function previewSong(id) {
+  const song = songs.find(s => s.id === id);
+  if (!song) return;
+
+  const audio = new Audio(URL.createObjectURL(song.audio));
+
+  audio.play().catch(() => alert("Audio tidak dapat diputar."));
+  audio.onended = () => URL.revokeObjectURL(audio.src);
+}
+
+$("searchInput").addEventListener("input", searchSongs);
+
+/* =========================
+   GAME ENGINE
+========================= */
+
+function startGame() {
+  if (songs.length < 5) {
+    alert("Tambahkan minimal 5 lagu ke Song Library!");
+
+    goPage("library");
+    return;
+  }
+
+  gameSongs = [...songs]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 5);
+
+  round = 0;
+  score = 0;
+
+  $("score").textContent = score;
+  $("resultPanel").classList.add("hidden");
+
+  goPage("game");
+  nextRound();
+}
+
+function nextRound() {
+  stopTimer();
+  stopAudio();
+
+  if (round >= 5) {
+    finishGame();
+    return;
+  }
+
+  const song = gameSongs[round];
+
+  round++;
+
+  $("roundLabel").textContent =
+    `ROUND ${String(round).padStart(2, "0")} / 05`;
+
+  $("progressBar").style.width =
+    `${((round - 1) / 5) * 100}%`;
+
+  $("answerInput").value = "";
+  $("answerInput").disabled = false;
+  $("submitBtn").disabled = false;
+  $("feedback").textContent = "";
+
+  $("gameStatus").textContent =
+    "♫ LISTEN AND GUESS THE SONG";
+
+  const audio = $("audioPlayer");
+
+  audio.src = URL.createObjectURL(song.audio);
+
+  $("disc").classList.remove("paused");
+
+  audio.play().catch(() => {
+    $("gameStatus").textContent = "PRESS REPLAY TO LISTEN";
+  });
+
+  startTimer();
+
+  $("answerInput").focus();
+}
+
+function startTimer() {
+  startTime = performance.now();
+  elapsed = 0;
+  playing = true;
+  answered = false;
+
+  stopTimer();
+
+  timerInterval = setInterval(() => {
+    elapsed = (performance.now() - startTime) / 1000;
+    updateTimer(elapsed);
+  }, 50);
+}
+
+function updateTimer(seconds) {
+  $("timer").textContent = "00:" + seconds.toFixed(1).padStart(4, "0");
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function stopAudio() {
+  const audio = $("audioPlayer");
+
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+
+  $("disc").classList.add("paused");
+}
+
+function normalize(text) {
+  return text.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function getPoints(seconds) {
+  if (seconds <= 3) return 1000;
+  if (seconds <= 6) return 800;
+  if (seconds <= 10) return 600;
+  if (seconds <= 15) return 400;
+  if (seconds <= 20) return 200;
+  return 100;
+}
+
+function submitAnswer() {
+  if (!playing || answered) return;
+
+  const guess = normalize($("answerInput").value);
+
+  if (!guess) {
+    $("feedback").textContent = "Masukkan jawaban terlebih dahulu!";
+    return;
+  }
+
+  const song = gameSongs[round - 1];
+
+  if (guess === normalize(song.title)) {
+    elapsed = (performance.now() - startTime) / 1000;
+
+    const points = getPoints(elapsed);
+
+    score += points;
+    answered = true;
+    playing = false;
+
+    stopTimer();
+
+    $("score").textContent = score;
+
+    $("feedback").textContent =
+      `✓ CORRECT! +${points} POINTS (${elapsed.toFixed(1)}s)`;
+
+    $("gameStatus").textContent =
+      `${song.title} — ${song.artist}`;
+
+    $("progressBar").style.width = `${round / 5 * 100}%`;
+
+    $("answerInput").disabled = true;
+    $("submitBtn").disabled = true;
+
+    stopAudio();
+
+    setTimeout(nextRound, 1400);
+  } else {
+    $("feedback").textContent = "✕ WRONG! TRY AGAIN!";
+  }
+}
+
+function skipSong() {
+  if (!playing) return;
+
+  playing = false;
+  answered = true;
+
+  stopTimer();
+
+  const song = gameSongs[round - 1];
+
+  $("feedback").textContent =
+    `SKIPPED! Answer: ${song.title} — ${song.artist}`;
+
+  $("answerInput").disabled = true;
+  $("submitBtn").disabled = true;
+
+  $("progressBar").style.width = `${round / 5 * 100}%`;
+
+  stopAudio();
+
+  setTimeout(nextRound, 1700);
+}
+
+function replaySong() {
+  if (round === 0 || round > 5) return;
+
+  const audio = $("audioPlayer");
+
+  audio.currentTime = 0;
+
+  audio.play().then(() => {
+    $("disc").classList.remove("paused");
+  }).catch(() => {});
+}
+
+function finishGame() {
+  stopTimer();
+  stopAudio();
+
+  playing = false;
+
+  $("progressBar").style.width = "100%";
+  $("gameStatus").textContent = "ALL ROUNDS COMPLETE!";
+
+  $("resultPanel").classList.remove("hidden");
+  $("finalScore").textContent = score + " PTS";
+
+  const high = Number(
+    localStorage.getItem("SONIQ_HIGH_SCORE") || 0
+  );
+
+  if (score > high) {
+    localStorage.setItem("SONIQ_HIGH
